@@ -542,11 +542,11 @@
         <div class="metrics-row">
           <div class="metric-item">
             <span class="metric-label"><span class="dot dot-work"></span> Work Time</span>
-            <span class="metric-value" id="totalWorkDisplay">0m 0s</span>
+            <span class="metric-value" id="totalWorkDisplay">0s</span>
           </div>
           <div class="metric-item">
             <span class="metric-label"><span class="dot dot-rest"></span> Rest Time</span>
-            <span class="metric-value" id="totalRestDisplay">0m 0s</span>
+            <span class="metric-value" id="totalRestDisplay">0s</span>
           </div>
         </div>
 
@@ -705,11 +705,11 @@
       return `${m}:${s}`;
     }
 
-    // Displays mins and secs (e.g., "36m 15s" or "0m 45s")
-    function formatMinSec(totalSecs) {
+    function formatSecondsDisplay(totalSecs) {
+      if (totalSecs < 60) return `${totalSecs}s`;
       const mins = Math.floor(totalSecs / 60);
       const secs = totalSecs % 60;
-      return `${mins}m ${secs}s`;
+      return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
     }
 
     /* --- TODO TAB LOGIC --- */
@@ -889,8 +889,8 @@
       const totalWorkSeconds = tasks.reduce((acc, curr) => acc + curr.time, 0);
       const totalRestSeconds = restCards.reduce((acc, curr) => acc + curr.usedSeconds, 0);
 
-      document.getElementById('totalWorkDisplay').innerText = formatMinSec(totalWorkSeconds);
-      document.getElementById('totalRestDisplay').innerText = formatMinSec(totalRestSeconds);
+      document.getElementById('totalWorkDisplay').innerText = formatSecondsDisplay(totalWorkSeconds);
+      document.getElementById('totalRestDisplay').innerText = formatSecondsDisplay(totalRestSeconds);
 
       const totalSeconds = totalWorkSeconds + totalRestSeconds;
       let workPct = 0;
