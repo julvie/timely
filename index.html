@@ -1,827 +1,774 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Time & Balance Tracker</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --primary-green: #10b981;
-      --light-green: #e6fffa;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border-color: #d1fae5;
-      --work-blue: #38bdf8;
-      --rest-green: #4ade80;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 480px;
-      background-color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Content Area */
-    .content-area {
-      flex: 1;
-      padding: 24px 20px 80px 20px;
-      overflow-y: auto;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Navigation Bar */
-    .nav-bar {
-      display: flex;
-      border-top: 1px solid #e2e8f0;
-      background-color: #ffffff;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      max-width: 480px;
-      z-index: 10;
-    }
-
-    .nav-btn {
-      flex: 1;
-      padding: 12px 0;
-      border: none;
-      background: none;
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      transition: color 0.2s;
-    }
-
-    .nav-btn.active {
-      color: #047857;
-      border-top: 3px solid #10b981;
-    }
-
-    /* --- TAB 1: TODO --- */
-    .todo-header {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 20px;
-    }
-
-    .task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .task-card {
-      background: var(--card-bg);
-      border: 1.5px solid var(--border-color);
-      border-radius: 16px;
-      padding: 12px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .left-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .drag-handle {
-      color: #cbd5e1;
-      font-weight: bold;
-      cursor: grab;
-    }
-
-    .checkbox {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      border: 2px solid #cbd5e1;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-      font-size: 12px;
-    }
-
-    .checkbox.checked {
-      background-color: var(--primary-green);
-      border-color: var(--primary-green);
-      color: white;
-    }
-
-    .task-title {
-      font-weight: 600;
-      color: var(--text-main);
-      font-size: 15px;
-      border: none;
-      background: transparent;
-      outline: none;
-      width: 100%;
-    }
-
-    .task-card.completed .task-title {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
-
-    .right-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .timer-btn {
-      background-color: var(--light-green);
-      border: none;
-      border-radius: 20px;
-      padding: 6px 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #047857;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .timer-btn.running {
-      background-color: #fef3c7;
-      color: #b45309;
-    }
-
-    .delete-btn {
-      background: none;
-      border: none;
-      color: #cbd5e1;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
-    }
-
-    .delete-btn:hover { color: #ef4444; }
-
-    .add-btn {
-      margin-top: 16px;
-      width: 100%;
-      padding: 12px;
-      background: var(--card-bg);
-      border: 1.5px solid #a7f3d0;
-      border-radius: 16px;
-      color: #047857;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    /* --- TAB 2: REST --- */
-    .rest-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-top: 10px;
-    }
-
-    .rest-card {
-      border-radius: 24px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 190px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    }
-
-    .card-yellow { background-color: #fef08a; }
-    .card-mint   { background-color: #86efac; }
-    .card-cyan   { background-color: #67e8f9; }
-    .card-lime   { background-color: #a3e635; }
-
-    .rest-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .rest-icon-bg {
-      width: 36px;
-      height: 36px;
-      background-color: rgba(255, 255, 255, 0.7);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .badge {
-      background-color: rgba(0, 0, 0, 0.85);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 16px;
-    }
-
-    .rest-info h3 {
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 4px;
-      color: #0f172a;
-    }
-
-    .rest-info p {
-      font-size: 11px;
-      color: #334155;
-      line-height: 1.3;
-      margin-bottom: 12px;
-    }
-
-    .rest-start-btn {
-      background: rgba(0, 0, 0, 0.08);
-      border: none;
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-weight: 800;
-      font-size: 13px;
-      color: #0f172a;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      width: fit-content;
-    }
-
-    .rest-start-btn.running {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    /* --- TAB 3: TREND --- */
-    .trend-section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .trend-section-title h2 {
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    .status-badge {
-      background-color: #e6fffa;
-      color: #047857;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 12px;
-    }
-
-    .metrics-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .metric-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .metric-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    .dot-work { background-color: var(--work-blue); }
-    .dot-rest { background-color: var(--rest-green); }
-
-    .metric-value {
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    .progress-bar-container {
-      width: 100%;
-      height: 12px;
-      background-color: #f1f5f9;
-      border-radius: 10px;
-      display: flex;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-
-    .progress-work {
-      height: 100%;
-      background-color: var(--work-blue);
-      width: 50%;
-    }
-
-    .progress-rest {
-      height: 100%;
-      background-color: var(--rest-green);
-      width: 50%;
-    }
-
-    .percent-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 32px;
-    }
-
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .legend {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .bar-chart {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      height: 160px;
-      padding-top: 20px;
-    }
-
-    .bar-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      flex: 1;
-    }
-
-    .bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 120px;
-    }
-
-    .bar {
-      width: 8px;
-      border-radius: 4px;
-    }
-
-    .bar-work { background-color: var(--work-blue); }
-    .bar-rest { background-color: var(--rest-green); }
-
-    .day-label {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .today-highlight {
-      position: absolute;
-      bottom: -6px;
-      width: 100%;
-      height: 140px;
-      background-color: #e6fffa;
-      border-radius: 16px;
-      z-index: -1;
-    }
-
-    .day-label.active {
-      color: #047857;
-      font-weight: 800;
-    }
-
-    /* Small Screen Adjustments */
-    @media (max-width: 360px) {
-      .rest-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
   </style>
 </head>
 <body>
-
-  <div class="app-container">
-    
-    <div class="content-area">
-
-      <div id="todoTab" class="tab-content active">
-        <h1 class="todo-header">Trevan, wassup?</h1>
-        <div id="taskList" class="task-list"></div>
-        <button class="add-btn" onclick="addNewTask()">+ Add Task</button>
-      </div>
-
-      <div id="restTab" class="tab-content">
-        <h1 class="todo-header">Rest Time</h1>
-        <div class="rest-grid" id="restGrid"></div>
-      </div>
-
-      <div id="trendTab" class="tab-content">
-        
-        <div class="trend-section-title">
-          <h2>Today's Balance</h2>
-          <span class="status-badge">Optimal</span>
-        </div>
-
-        <div class="metrics-row">
-          <div class="metric-item">
-            <span class="metric-label"><span class="dot dot-work"></span> Work Time</span>
-            <span class="metric-value" id="totalWorkDisplay">0m</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label"><span class="dot dot-rest"></span> Rest Time</span>
-            <span class="metric-value" id="totalRestDisplay">0m</span>
-          </div>
-        </div>
-
-        <div class="progress-bar-container">
-          <div class="progress-work" id="workProgressBar"></div>
-          <div class="progress-rest" id="restProgressBar"></div>
-        </div>
-
-        <div class="percent-row">
-          <span id="workPercentLabel">0% Work</span>
-          <span id="restPercentLabel">0% Rest</span>
-        </div>
-
-        <div class="chart-header">
-          <h2>Weekly Activity</h2>
-          <div class="legend">
-            <span><span class="dot dot-work"></span> Work</span>
-            <span><span class="dot dot-rest"></span> Rest</span>
-          </div>
-        </div>
-
-        <div class="bar-chart">
-          <div class="bar-group">
-            <div class="bars">
-              <div class="bar bar-work" style="height: 40px;"></div>
-              <div class="bar bar-rest" style="height: 30px;"></div>
-            </div>
-            <span class="day-label">Sat</span>
-          </div>
-
-          <div class="bar-group">
-            <div class="bars">
-              <div class="bar bar-work" style="height: 85px;"></div>
-              <div class="bar bar-rest" style="height: 35px;"></div>
-            </div>
-            <span class="day-label">Sun</span>
-          </div>
-
-          <div class="bar-group">
-            <div class="bars">
-              <div class="bar bar-work" style="height: 60px;"></div>
-              <div class="bar bar-rest" style="height: 30px;"></div>
-            </div>
-            <span class="day-label">Mon</span>
-          </div>
-
-          <div class="bar-group">
-            <div class="bars">
-              <div class="bar bar-work" style="height: 95px;"></div>
-              <div class="bar bar-rest" style="height: 40px;"></div>
-            </div>
-            <span class="day-label">Tue</span>
-          </div>
-
-          <div class="bar-group">
-            <div class="bars">
-              <div class="bar bar-work" style="height: 75px;"></div>
-              <div class="bar bar-rest" style="height: 30px;"></div>
-            </div>
-            <span class="day-label">Wed</span>
-          </div>
-
-          <div class="bar-group">
-            <div class="bars">
-              <div class="bar bar-work" style="height: 50px;"></div>
-              <div class="bar bar-rest" style="height: 25px;"></div>
-            </div>
-            <span class="day-label">Thu</span>
-          </div>
-
-          <div class="bar-group">
-            <div class="today-highlight"></div>
-            <div class="bars">
-              <div class="bar bar-work" id="todayWorkBar" style="height: 10px;"></div>
-              <div class="bar bar-rest" id="todayRestBar" style="height: 10px;"></div>
-            </div>
-            <span class="day-label active">Today</span>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <nav class="nav-bar">
-      <button class="nav-btn active" onclick="switchTab('todoTab', this)">
-        <span>☑</span> Todo
-      </button>
-      <button class="nav-btn" onclick="switchTab('restTab', this)">
-        <span>☕</span> Rest
-      </button>
-      <button class="nav-btn" onclick="switchTab('trendTab', this)">
-        <span>📊</span> Trend
-      </button>
-    </nav>
-
-  </div>
-
-  <script>
-    // State Management
-    let tasks = [
-      { id: 1, title: 'Updating Header Text', time: 545, completed: true, running: false },
-      { id: 2, title: 'Routine Review Update', time: 545, completed: false, running: false },
-      { id: 3, title: 'Working on HTML', time: 545, completed: false, running: false },
-      { id: 4, title: 'Working on Email Designs', time: 545, completed: false, running: false }
-    ];
-
-    let restCards = [
-      { id: 1, title: 'TV', desc: 'Unwind with favorite videos', icon: '📺', colorClass: 'card-yellow', remaining: 1800, usedSeconds: 0, running: false },
-      { id: 2, title: 'Chill', desc: 'Breathe, tea, mindfulness', icon: '🧘', colorClass: 'card-mint', remaining: 1800, usedSeconds: 0, running: false },
-      { id: 3, title: 'Chat', desc: 'Catch up with friends', icon: '💬', colorClass: 'card-cyan', remaining: 1800, usedSeconds: 0, running: false },
-      { id: 4, title: 'Other fun stuff', desc: 'Light games or a brisk walk', icon: '🎉', colorClass: 'card-lime', remaining: 1800, usedSeconds: 0, running: false }
-    ];
-
-    let workInterval = null;
-    let restInterval = null;
-
-    function switchTab(tabId, btnElement) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      
-      document.getElementById(tabId).classList.add('active');
-      btnElement.classList.add('active');
-
-      if (tabId === 'trendTab') {
-        updateTrendMetrics();
-      }
-    }
-
-    function formatTime(seconds) {
-      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-      const s = String(seconds % 60).padStart(2, '0');
-      return `${h}:${m}:${s}`;
-    }
-
-    function formatCountdown(seconds) {
-      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-      const s = String(seconds % 60).padStart(2, '0');
-      return `${m}:${s}`;
-    }
-
-    /* --- TODO TAB LOGIC --- */
-    function renderTasks() {
-      const listContainer = document.getElementById('taskList');
-      listContainer.innerHTML = '';
-
-      tasks.forEach((task) => {
-        const card = document.createElement('div');
-        card.className = `task-card ${task.completed ? 'completed' : ''}`;
-        
-        card.innerHTML = `
-          <div class="left-group">
-            <span class="drag-handle">=</span
-            <div class="checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})">
-              ${task.completed ? '✓' : ''}
-            </div>
-            <input class="task-title" value="${task.title}" onchange="updateTitle(${task.id}, this.value)">
-          </div>
-          <div class="right-group">
-            <button class="timer-btn ${task.running ? 'running' : ''}" onclick="toggleTimer(${task.id})">
-              <span>${task.running ? '❚❚' : '▶'}</span>
-              <span>${formatTime(task.time)}</span>
-            </button>
-            <button class="delete-btn" onclick="deleteTask(${task.id})">🗑</button>
-          </div>
-        `;
-        listContainer.appendChild(card);
-      });
-    }
-
-    function toggleTask(id) {
-      tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-      renderTasks();
-    }
-
-    function updateTitle(id, newTitle) {
-      tasks = tasks.map(t => t.id === id ? { ...t, title: newTitle } : t);
-    }
-
-    function toggleTimer(id) {
-      stopAllRestTimers();
-      tasks = tasks.map(t => {
-        if (t.id === id) {
-          return { ...t, running: !t.running };
-        }
-        return { ...t, running: false };
-      });
-
-      const anyRunning = tasks.some(t => t.running);
-      if (anyRunning && !workInterval) {
-        workInterval = setInterval(() => {
-          tasks = tasks.map(t => t.running ? { ...t, time: t.time + 1 } : t);
-          renderTasks();
-        }, 1000);
-      } else if (!anyRunning) {
-        clearInterval(workInterval);
-        workInterval = null;
-      }
-      renderTasks();
-    }
-
-    function addNewTask() {
-      tasks.push({ id: Date.now(), title: 'New Task', time: 0, completed: false, running: false });
-      renderTasks();
-    }
-
-    function deleteTask(id) {
-      tasks = tasks.filter(t => t.id !== id);
-      renderTasks();
-    }
-
-    /* --- REST TAB LOGIC --- */
-    function renderRestCards() {
-      const restGrid = document.getElementById('restGrid');
-      restGrid.innerHTML = '';
-
-      restCards.forEach((card) => {
-        const el = document.createElement('div');
-        el.className = `rest-card ${card.colorClass}`;
-        
-        const isFinished = card.remaining <= 0;
-        
-        el.innerHTML = `
-          <div class="rest-card-top">
-            <div class="rest-icon-bg">${card.icon}</div>
-            <span class="badge">30 mins</span>
-          </div>
-          <div class="rest-info">
-            <h3>${card.title}</h3>
-            <p>${card.desc}</p>
-            <button class="rest-start-btn ${card.running ? 'running' : ''}" onclick="toggleRestTimer(${card.id})" ${isFinished ? 'disabled' : ''}>
-              <span>${card.running ? '❚❚ Stop' : (isFinished ? 'Finished' : '▶ Start ' + formatCountdown(card.remaining))}</span>
-            </button>
-          </div>
-        `;
-        restGrid.appendChild(el);
-      });
-    }
-
-    function stopAllWorkTimers() {
-      tasks = tasks.map(t => ({ ...t, running: false }));
-      clearInterval(workInterval);
-      workInterval = null;
-      renderTasks();
-    }
-
-    function stopAllRestTimers() {
-      restCards = restCards.map(c => ({ ...c, running: false }));
-      clearInterval(restInterval);
-      restInterval = null;
-      renderRestCards();
-    }
-
-    function toggleRestTimer(id) {
-      stopAllWorkTimers();
-
-      restCards = restCards.map(c => {
-        if (c.id === id) {
-          return { ...c, running: !c.running };
-        }
-        return { ...c, running: false };
-      });
-
-      const anyRunning = restCards.some(c => c.running);
-      
-      if (anyRunning && !restInterval) {
-        restInterval = setInterval(() => {
-          restCards = restCards.map(c => {
-            if (c.running && c.remaining > 0) {
-              return { 
-                ...c, 
-                remaining: c.remaining - 1,
-                usedSeconds: c.usedSeconds + 1 
-              };
-            } else if (c.running && c.remaining <= 0) {
-              return { ...c, running: false };
-            }
-            return c;
-          });
-
-          if (!restCards.some(c => c.running)) {
-            clearInterval(restInterval);
-            restInterval = null;
-          }
-
-          renderRestCards();
-        }, 1000);
-      } else if (!anyRunning) {
-        clearInterval(restInterval);
-        restInterval = null;
-      }
-
-      renderRestCards();
-    }
-
-    /* --- TREND TAB LOGIC --- */
-    function updateTrendMetrics() {
-      const totalWorkSeconds = tasks.reduce((acc, curr) => acc + curr.time, 0);
-      const totalRestSeconds = restCards.reduce((acc, curr) => acc + curr.usedSeconds, 0);
-
-      const workMinutes = Math.round(totalWorkSeconds / 60);
-      const restMinutes = Math.round(totalRestSeconds / 60);
-
-      document.getElementById('totalWorkDisplay').innerText = `${workMinutes}m`;
-      document.getElementById('totalRestDisplay').innerText = `${restMinutes}m`;
-
-      const totalSeconds = totalWorkSeconds + totalRestSeconds;
-      let workPct = 50;
-      let restPct = 50;
-
-      if (totalSeconds > 0) {
-        workPct = Math.round((totalWorkSeconds / totalSeconds) * 100);
-        restPct = 100 - workPct;
-      } else {
-        workPct = 0;
-        restPct = 0;
-      }
-
-      document.getElementById('workProgressBar').style.width = `${workPct}%`;
-      document.getElementById('restProgressBar').style.width = `${restPct}%`;
-
-      document.getElementById('workPercentLabel').innerText = `${workPct}% Work`;
-      document.getElementById('restPercentLabel').innerText = `${restPct}% Rest`;
-
-      document.getElementById('todayWorkBar').style.height = `${Math.min(100, Math.max(10, workMinutes * 1.5))}px`;
-      document.getElementById('todayRestBar').style.height = `${Math.min(100, Math.max(10, restMinutes * 1.5))}px`;
-    }
-
-    // Initialize App
-    renderTasks();
-    renderRestCards();
-  </script>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Time &amp; Balance Tracker&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>* {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--bg-color: #f8fafc;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--card-bg: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--primary-green: #10b981;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--light-green: #e6fffa;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--text-main: #0f172a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--text-muted: #64748b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--border-color: #d1fae5;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--work-blue: #38bdf8;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--rest-green: #4ade80;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--bg-color);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-main);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>min-height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.app-container {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>max-width: 440px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>min-height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* Tab Content Area */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.content-area {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 24px 20px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>overflow-y: auto;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.tab-content {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.tab-content.active {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* Bottom Navigation Bar */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.nav-bar {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-top: 1px solid #e2e8f0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: sticky;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>bottom: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.nav-btn {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 14px 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-muted);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transition: color 0.2s;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.nav-btn.active {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #047857;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-top: 3px solid #10b981;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* --- TAB 1: TODO --- */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.todo-header {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.task-list {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.task-card {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1.5px solid var(--border-color);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 12px 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.left-group {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>min-width: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.drag-handle {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #cbd5e1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: grab;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.checkbox {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>min-width: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 2px solid #cbd5e1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.checkbox.checked {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--primary-green);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-color: var(--primary-green);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.task-title {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-main);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: transparent;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>outline: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.task-card.completed .task-title {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>text-decoration: line-through;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-muted);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.right-group {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-shrink: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.timer-btn {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--light-green);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 6px 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #047857;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>white-space: nowrap;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.timer-btn.running {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: #fef3c7;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #b45309;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.delete-btn {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #cbd5e1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.delete-btn:hover { color: #ef4444; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.add-btn {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1.5px solid #a7f3d0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #047857;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* --- TAB 2: REST --- */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-grid {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr 1fr;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-card {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 180px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 2px 8px rgba(0,0,0,0.03);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card-yellow { background-color: #fef08a; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card-mint <span class="Apple-converted-space">  </span>{ background-color: #86efac; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card-cyan <span class="Apple-converted-space">  </span>{ background-color: #67e8f9; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card-lime <span class="Apple-converted-space">  </span>{ background-color: #a3e635; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-card-top {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-icon-bg {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 36px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 36px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: rgba(255, 255, 255, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.badge {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: rgba(0, 0, 0, 0.85);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 11px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 6px 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-info h3 {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #0f172a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-info p {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 11px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #334155;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.3;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.rest-start-btn {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #0f172a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* --- TAB 3: TREND --- */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.trend-section-title {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.trend-section-title h2 {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.status-badge {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: #e6fffa;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #047857;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 4px 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.metrics-row {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.metric-item {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.metric-label {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-muted);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.dot {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.dot-work { background-color: var(--work-blue); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.dot-rest { background-color: var(--rest-green); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.metric-value {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.progress-bar-container {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: #f1f5f9;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.progress-work {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--work-blue);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 61%;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.progress-rest {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--rest-green);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 38%;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.percent-row {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #0f172a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 32px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.chart-header {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.legend {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-muted);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.bar-chart {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: flex-end;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 160px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding-top: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.bar-group {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.bars {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: flex-end;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 3px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 120px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.bar {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.bar-work { background-color: var(--work-blue); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.bar-rest { background-color: var(--rest-green); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.day-label {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-muted);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.today-highlight {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>bottom: -6px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 140px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background-color: #e6fffa;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>z-index: -1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.day-label.active {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #047857;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="app-container"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="content-area"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="todoTab" class="tab-content active"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="todo-header"&gt;Trevan, wassup?&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="taskList" class="task-list"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="add-btn" onclick="addNewTask()"&gt;+ Add Task&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="restTab" class="tab-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="todo-header"&gt;Rest Time&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="rest-grid"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">          </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="rest-card card-yellow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-card-top"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="rest-icon-bg"&gt;📺&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="badge"&gt;30 mins&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3&gt;TV&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p&gt;Unwind with favorite videos&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button class="rest-start-btn" onclick="addRestTime(30)"&gt;▶ Start 30m&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="rest-card card-mint"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-card-top"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="rest-icon-bg"&gt;🧘&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="badge"&gt;30 mins&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3&gt;Chill&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p&gt;Breathe, tea, mindfulness&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button class="rest-start-btn" onclick="addRestTime(30)"&gt;▶ Start 30m&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="rest-card card-cyan"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-card-top"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="rest-icon-bg"&gt;💬&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="badge"&gt;30 mins&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3&gt;Chat&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p&gt;Catch up with friends&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button class="rest-start-btn" onclick="addRestTime(30)"&gt;▶ Start 30m&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="rest-card card-lime"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-card-top"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="rest-icon-bg"&gt;🎉&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="badge"&gt;30 mins&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="rest-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3&gt;Other fun stuff&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p&gt;Light games or a brisk walk&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button class="rest-start-btn" onclick="addRestTime(30)"&gt;▶ Start 30m&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="trendTab" class="tab-content"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="trend-section-title"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h2&gt;Today's Balance&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="status-badge"&gt;Optimal&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="metrics-row"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="metric-item"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="metric-label"&gt;&lt;span class="dot dot-work"&gt;&lt;/span&gt; Work Time&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="metric-value" id="totalWorkDisplay"&gt;48m&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="metric-item"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="metric-label"&gt;&lt;span class="dot dot-rest"&gt;&lt;/span&gt; Rest Time&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="metric-value" id="totalRestDisplay"&gt;30m&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="progress-bar-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="progress-work" id="workProgressBar"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="progress-rest" id="restProgressBar"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="percent-row"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span id="workPercentLabel"&gt;61% Work&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span id="restPercentLabel"&gt;38% Rest&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chart-header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h2&gt;Weekly Activity&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="legend"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;&lt;span class="dot dot-work"&gt;&lt;/span&gt; Work&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;&lt;span class="dot dot-rest"&gt;&lt;/span&gt; Rest&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bar-chart"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" style="height: 40px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" style="height: 30px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label"&gt;Sat&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" style="height: 85px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" style="height: 35px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label"&gt;Sun&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" style="height: 60px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" style="height: 30px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label"&gt;Mon&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" style="height: 95px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" style="height: 40px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label"&gt;Tue&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" style="height: 75px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" style="height: 30px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label"&gt;Wed&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" style="height: 50px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" style="height: 25px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label"&gt;Thu&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bar-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="today-highlight"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bars"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-work" id="todayWorkBar" style="height: 30px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="bar bar-rest" id="todayRestBar" style="height: 20px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="day-label active"&gt;Today&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;nav class="nav-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="nav-btn active" onclick="switchTab('todoTab', this)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;☑&lt;/span&gt; Todo</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="nav-btn" onclick="switchTab('restTab', this)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;☕&lt;/span&gt; Rest</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="nav-btn" onclick="switchTab('trendTab', this)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;📊&lt;/span&gt; Trend</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/nav&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// State management</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let tasks = [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ id: 1, title: 'Updating Header Text', time: 545, completed: true, running: false },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ id: 2, title: 'Routine Review Update', time: 545, completed: false, running: false },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ id: 3, title: 'Working on HTML', time: 545, completed: false, running: false },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ id: 4, title: 'Working on Email Designs', time: 545, completed: false, running: false }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>let restMinutes = 30;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let interval = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Tab Navigation Switcher</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function switchTab(tabId, btnElement) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll('.tab-content').forEach(tab =&gt; tab.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll('.nav-btn').forEach(btn =&gt; btn.classList.remove('active'));</p>
+<p class="p2"><span class="Apple-converted-space">      </span></p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById(tabId).classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>btnElement.classList.add('active');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (tabId === 'trendTab') {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateTrendMetrics();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Format Seconds to HH:MM:SS</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function formatTime(seconds) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const h = String(Math.floor(seconds / 3600)).padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const s = String(seconds % 60).padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return `${h}:${m}:${s}`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Render Tasks inside Todo Tab</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderTasks() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const listContainer = document.getElementById('taskList');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>listContainer.innerHTML = '';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>tasks.forEach((task) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const card = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>card.className = `task-card ${task.completed ? 'completed' : ''}`;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>card.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="left-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="drag-handle"&gt;=&lt;/span</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>${task.completed ? '✓' : ''}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input class="task-title" value="${task.title}" onchange="updateTitle(${task.id}, this.value)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="right-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="timer-btn ${task.running ? 'running' : ''}" onclick="toggleTimer(${task.id})"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span&gt;${task.running ? '❚❚' : '▶'}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span&gt;${formatTime(task.time)}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="delete-btn" onclick="deleteTask(${task.id})"&gt;🗑&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>listContainer.appendChild(card);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleTask(id) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>tasks = tasks.map(t =&gt; t.id === id ? { ...t, completed: !t.completed } : t);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderTasks();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateTitle(id, newTitle) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>tasks = tasks.map(t =&gt; t.id === id ? { ...t, title: newTitle } : t);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleTimer(id) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>tasks = tasks.map(t =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (t.id === id) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return { ...t, running: !t.running };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { ...t, running: false };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const anyRunning = tasks.some(t =&gt; t.running);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (anyRunning &amp;&amp; !interval) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>interval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>tasks = tasks.map(t =&gt; t.running ? { ...t, time: t.time + 1 } : t);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>renderTasks();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} else if (!anyRunning) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>clearInterval(interval);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>interval = null;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderTasks();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function addNewTask() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>tasks.push({ id: Date.now(), title: 'New Task', time: 0, completed: false, running: false });</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderTasks();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function deleteTask(id) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>tasks = tasks.filter(t =&gt; t.id !== id);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderTasks();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Rest activity time tracking</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function addRestTime(minutes) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>restMinutes += minutes;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alert(`Added ${minutes} minutes of rest!`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Update Metrics in Trend Tab dynamically</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateTrendMetrics() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const totalWorkSeconds = tasks.reduce((acc, curr) =&gt; acc + curr.time, 0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const totalWorkMinutes = Math.max(1, Math.round(totalWorkSeconds / 60));</p>
+<p class="p2"><span class="Apple-converted-space">      </span></p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('totalWorkDisplay').innerText = `${totalWorkMinutes}m`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('totalRestDisplay').innerText = `${restMinutes}m`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const total = totalWorkMinutes + restMinutes;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const workPct = Math.round((totalWorkMinutes / total) * 100);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const restPct = 100 - workPct;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('workProgressBar').style.width = `${workPct}%`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('restProgressBar').style.width = `${restPct}%`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('workPercentLabel').innerText = `${workPct}% Work`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('restPercentLabel').innerText = `${restPct}% Rest`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Scale today's chart bars relative to current values</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('todayWorkBar').style.height = `${Math.min(100, totalWorkMinutes * 0.8)}px`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('todayRestBar').style.height = `${Math.min(100, restMinutes * 0.8)}px`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Initial Execution</p>
+<p class="p1"><span class="Apple-converted-space">    </span>renderTasks();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
 </body>
 </html>
