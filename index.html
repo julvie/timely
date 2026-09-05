@@ -102,6 +102,13 @@
       gap: 12px;
     }
 
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 24px 0;
+    }
+
     .task-card {
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
@@ -367,14 +374,14 @@
     .progress-work {
       height: 100%;
       background-color: var(--work-blue);
-      width: 50%;
+      width: 0%;
       transition: width 0.3s ease;
     }
 
     .progress-rest {
       height: 100%;
       background-color: var(--rest-green);
-      width: 50%;
+      width: 0%;
       transition: width 0.3s ease;
     }
 
@@ -584,48 +591,48 @@
               <div class="bar-chart-bars">
                 <div class="bar-column">
                   <div class="bar-stack">
-                    <div class="bar-segment-work" style="height: 40px;"></div>
-                    <div class="bar-segment-rest" style="height: 25px;"></div>
+                    <div class="bar-segment-work" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Sat</span>
                 </div>
 
                 <div class="bar-column">
                   <div class="bar-stack">
-                    <div class="bar-segment-work" style="height: 75px;"></div>
-                    <div class="bar-segment-rest" style="height: 30px;"></div>
+                    <div class="bar-segment-work" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Sun</span>
                 </div>
 
                 <div class="bar-column">
                   <div class="bar-stack">
-                    <div class="bar-segment-work" style="height: 50px;"></div>
-                    <div class="bar-segment-rest" style="height: 25px;"></div>
+                    <div class="bar-segment-work" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Mon</span>
                 </div>
 
                 <div class="bar-column">
                   <div class="bar-stack">
-                    <div class="bar-segment-work" style="height: 80px;"></div>
-                    <div class="bar-segment-rest" style="height: 35px;"></div>
+                    <div class="bar-segment-work" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Tue</span>
                 </div>
 
                 <div class="bar-column">
                   <div class="bar-stack">
-                    <div class="bar-segment-work" style="height: 65px;"></div>
-                    <div class="bar-segment-rest" style="height: 25px;"></div>
+                    <div class="bar-segment-work" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Wed</span>
                 </div>
 
                 <div class="bar-column">
                   <div class="bar-stack">
-                    <div class="bar-segment-work" style="height: 45px;"></div>
-                    <div class="bar-segment-rest" style="height: 20px;"></div>
+                    <div class="bar-segment-work" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Thu</span>
                 </div>
@@ -633,8 +640,8 @@
                 <div class="bar-column today">
                   <div class="today-pill"></div>
                   <div class="bar-stack">
-                    <div class="bar-segment-work" id="todayWorkBar" style="height: 5px;"></div>
-                    <div class="bar-segment-rest" id="todayRestBar" style="height: 5px;"></div>
+                    <div class="bar-segment-work" id="todayWorkBar" style="height: 0px;"></div>
+                    <div class="bar-segment-rest" id="todayRestBar" style="height: 0px;"></div>
                   </div>
                   <span class="day-label">Today</span>
                 </div>
@@ -661,13 +668,8 @@
   </div>
 
   <script>
-    // State Management
-    let tasks = [
-      { id: 1, title: 'Updating Header Text', time: 545, completed: true, running: false },
-      { id: 2, title: 'Routine Review Update', time: 545, completed: false, running: false },
-      { id: 3, title: 'Working on HTML', time: 545, completed: false, running: false },
-      { id: 4, title: 'Working on Email Designs', time: 545, completed: false, running: false }
-    ];
+    // State Management (Data initialized empty)
+    let tasks = [];
 
     let restCards = [
       { id: 1, title: 'TV', desc: 'Unwind with favorite videos', icon: '📺', colorClass: 'card-yellow', remaining: 1800, usedSeconds: 0, running: false },
@@ -718,6 +720,11 @@
       const listContainer = document.getElementById('taskList');
       if (!listContainer) return;
       listContainer.innerHTML = '';
+
+      if (tasks.length === 0) {
+        listContainer.innerHTML = '<div class="empty-state">No tasks yet. Click "+ Add Task" to begin!</div>';
+        return;
+      }
 
       tasks.forEach((task, index) => {
         const card = document.createElement('div');
@@ -910,8 +917,8 @@
 
       const workMinutes = Math.round(totalWorkSeconds / 60);
       const restMinutes = Math.round(totalRestSeconds / 60);
-      const workPx = Math.min(80, Math.max(4, Math.round((workMinutes / 240) * 100)));
-      const restPx = Math.min(40, Math.max(4, Math.round((restMinutes / 240) * 100)));
+      const workPx = Math.min(80, Math.max(0, Math.round((workMinutes / 240) * 100)));
+      const restPx = Math.min(40, Math.max(0, Math.round((restMinutes / 240) * 100)));
 
       document.getElementById('todayWorkBar').style.height = `${workPx}px`;
       document.getElementById('todayRestBar').style.height = `${restPx}px`;
