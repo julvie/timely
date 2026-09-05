@@ -1,0 +1,765 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+  <meta charset="UTF-8" />\
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>\
+  <title>Time & Balance Tracker</title>\
+  <style>\
+    * \{\
+      box-sizing: border-box;\
+      margin: 0;\
+      padding: 0;\
+    \}\
+\
+    :root \{\
+      --bg-color: #f8fafc;\
+      --card-bg: #ffffff;\
+      --primary-green: #10b981;\
+      --light-green: #e6fffa;\
+      --text-main: #0f172a;\
+      --text-muted: #64748b;\
+      --border-color: #d1fae5;\
+      --work-blue: #38bdf8;\
+      --rest-green: #4ade80;\
+    \}\
+\
+    body \{\
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;\
+      background-color: var(--bg-color);\
+      color: var(--text-main);\
+      display: flex;\
+      justify-content: center;\
+      min-height: 100vh;\
+    \}\
+\
+    .app-container \{\
+      width: 100%;\
+      max-width: 440px;\
+      background-color: #ffffff;\
+      display: flex;\
+      flex-direction: column;\
+      min-height: 100vh;\
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);\
+    \}\
+\
+    /* Tab Content Area */\
+    .content-area \{\
+      flex: 1;\
+      padding: 24px 20px;\
+      overflow-y: auto;\
+    \}\
+\
+    .tab-content \{\
+      display: none;\
+    \}\
+\
+    .tab-content.active \{\
+      display: block;\
+    \}\
+\
+    /* Bottom Navigation Bar */\
+    .nav-bar \{\
+      display: flex;\
+      border-top: 1px solid #e2e8f0;\
+      background-color: #ffffff;\
+      position: sticky;\
+      bottom: 0;\
+    \}\
+\
+    .nav-btn \{\
+      flex: 1;\
+      padding: 14px 0;\
+      border: none;\
+      background: none;\
+      font-weight: 700;\
+      font-size: 14px;\
+      color: var(--text-muted);\
+      cursor: pointer;\
+      display: flex;\
+      flex-direction: column;\
+      align-items: center;\
+      gap: 4px;\
+      transition: color 0.2s;\
+    \}\
+\
+    .nav-btn.active \{\
+      color: #047857;\
+      border-top: 3px solid #10b981;\
+    \}\
+\
+    /* --- TAB 1: TODO --- */\
+    .todo-header \{\
+      font-size: 24px;\
+      font-weight: 800;\
+      margin-bottom: 20px;\
+    \}\
+\
+    .task-list \{\
+      display: flex;\
+      flex-direction: column;\
+      gap: 12px;\
+    \}\
+\
+    .task-card \{\
+      background: var(--card-bg);\
+      border: 1.5px solid var(--border-color);\
+      border-radius: 16px;\
+      padding: 12px 14px;\
+      display: flex;\
+      align-items: center;\
+      justify-content: space-between;\
+      gap: 8px;\
+    \}\
+\
+    .left-group \{\
+      display: flex;\
+      align-items: center;\
+      gap: 10px;\
+      flex: 1;\
+      min-width: 0;\
+    \}\
+\
+    .drag-handle \{\
+      color: #cbd5e1;\
+      font-weight: bold;\
+      cursor: grab;\
+    \}\
+\
+    .checkbox \{\
+      width: 22px;\
+      height: 22px;\
+      min-width: 22px;\
+      border: 2px solid #cbd5e1;\
+      border-radius: 6px;\
+      cursor: pointer;\
+      display: flex;\
+      align-items: center;\
+      justify-content: center;\
+      background: #fff;\
+      font-size: 12px;\
+    \}\
+\
+    .checkbox.checked \{\
+      background-color: var(--primary-green);\
+      border-color: var(--primary-green);\
+      color: white;\
+    \}\
+\
+    .task-title \{\
+      font-weight: 600;\
+      color: var(--text-main);\
+      font-size: 15px;\
+      border: none;\
+      background: transparent;\
+      outline: none;\
+      width: 100%;\
+    \}\
+\
+    .task-card.completed .task-title \{\
+      text-decoration: line-through;\
+      color: var(--text-muted);\
+    \}\
+\
+    .right-group \{\
+      display: flex;\
+      align-items: center;\
+      gap: 8px;\
+      flex-shrink: 0;\
+    \}\
+\
+    .timer-btn \{\
+      background-color: var(--light-green);\
+      border: none;\
+      border-radius: 20px;\
+      padding: 6px 12px;\
+      display: flex;\
+      align-items: center;\
+      gap: 6px;\
+      color: #047857;\
+      font-weight: 700;\
+      font-size: 13px;\
+      cursor: pointer;\
+      white-space: nowrap;\
+    \}\
+\
+    .timer-btn.running \{\
+      background-color: #fef3c7;\
+      color: #b45309;\
+    \}\
+\
+    .delete-btn \{\
+      background: none;\
+      border: none;\
+      color: #cbd5e1;\
+      cursor: pointer;\
+      font-size: 16px;\
+      padding: 4px;\
+    \}\
+\
+    .delete-btn:hover \{ color: #ef4444; \}\
+\
+    .add-btn \{\
+      margin-top: 16px;\
+      width: 100%;\
+      padding: 12px;\
+      background: var(--card-bg);\
+      border: 1.5px solid #a7f3d0;\
+      border-radius: 16px;\
+      color: #047857;\
+      font-weight: 700;\
+      font-size: 15px;\
+      cursor: pointer;\
+    \}\
+\
+    /* --- TAB 2: REST --- */\
+    .rest-grid \{\
+      display: grid;\
+      grid-template-columns: 1fr 1fr;\
+      gap: 16px;\
+      margin-top: 10px;\
+    \}\
+\
+    .rest-card \{\
+      border-radius: 24px;\
+      padding: 18px;\
+      display: flex;\
+      flex-direction: column;\
+      justify-content: space-between;\
+      height: 180px;\
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);\
+    \}\
+\
+    .card-yellow \{ background-color: #fef08a; \}\
+    .card-mint   \{ background-color: #86efac; \}\
+    .card-cyan   \{ background-color: #67e8f9; \}\
+    .card-lime   \{ background-color: #a3e635; \}\
+\
+    .rest-card-top \{\
+      display: flex;\
+      justify-content: space-between;\
+      align-items: center;\
+    \}\
+\
+    .rest-icon-bg \{\
+      width: 36px;\
+      height: 36px;\
+      background-color: rgba(255, 255, 255, 0.7);\
+      border-radius: 50%;\
+      display: flex;\
+      align-items: center;\
+      justify-content: center;\
+      font-size: 16px;\
+    \}\
+\
+    .badge \{\
+      background-color: rgba(0, 0, 0, 0.85);\
+      color: #ffffff;\
+      font-size: 11px;\
+      font-weight: 700;\
+      padding: 6px 10px;\
+      border-radius: 16px;\
+    \}\
+\
+    .rest-info h3 \{\
+      font-size: 18px;\
+      font-weight: 800;\
+      margin-bottom: 4px;\
+      color: #0f172a;\
+    \}\
+\
+    .rest-info p \{\
+      font-size: 11px;\
+      color: #334155;\
+      line-height: 1.3;\
+      margin-bottom: 12px;\
+    \}\
+\
+    .rest-start-btn \{\
+      background: none;\
+      border: none;\
+      font-weight: 800;\
+      font-size: 13px;\
+      color: #0f172a;\
+      cursor: pointer;\
+      display: flex;\
+      align-items: center;\
+      gap: 4px;\
+    \}\
+\
+    /* --- TAB 3: TREND --- */\
+    .trend-section-title \{\
+      display: flex;\
+      justify-content: space-between;\
+      align-items: center;\
+      margin-bottom: 16px;\
+    \}\
+\
+    .trend-section-title h2 \{\
+      font-size: 20px;\
+      font-weight: 800;\
+    \}\
+\
+    .status-badge \{\
+      background-color: #e6fffa;\
+      color: #047857;\
+      font-size: 12px;\
+      font-weight: 700;\
+      padding: 4px 12px;\
+      border-radius: 12px;\
+    \}\
+\
+    .metrics-row \{\
+      display: flex;\
+      justify-content: space-between;\
+      margin-bottom: 12px;\
+    \}\
+\
+    .metric-item \{\
+      display: flex;\
+      flex-direction: column;\
+    \}\
+\
+    .metric-label \{\
+      font-size: 12px;\
+      color: var(--text-muted);\
+      margin-bottom: 4px;\
+      display: flex;\
+      align-items: center;\
+      gap: 6px;\
+    \}\
+\
+    .dot \{\
+      width: 8px;\
+      height: 8px;\
+      border-radius: 50%;\
+    \}\
+\
+    .dot-work \{ background-color: var(--work-blue); \}\
+    .dot-rest \{ background-color: var(--rest-green); \}\
+\
+    .metric-value \{\
+      font-size: 20px;\
+      font-weight: 800;\
+    \}\
+\
+    .progress-bar-container \{\
+      width: 100%;\
+      height: 12px;\
+      background-color: #f1f5f9;\
+      border-radius: 10px;\
+      display: flex;\
+      overflow: hidden;\
+      margin-bottom: 8px;\
+    \}\
+\
+    .progress-work \{\
+      height: 100%;\
+      background-color: var(--work-blue);\
+      width: 61%;\
+    \}\
+\
+    .progress-rest \{\
+      height: 100%;\
+      background-color: var(--rest-green);\
+      width: 38%;\
+    \}\
+\
+    .percent-row \{\
+      display: flex;\
+      justify-content: space-between;\
+      font-size: 12px;\
+      font-weight: 700;\
+      color: #0f172a;\
+      margin-bottom: 32px;\
+    \}\
+\
+    .chart-header \{\
+      display: flex;\
+      justify-content: space-between;\
+      align-items: center;\
+      margin-bottom: 24px;\
+    \}\
+\
+    .legend \{\
+      display: flex;\
+      gap: 12px;\
+      font-size: 12px;\
+      color: var(--text-muted);\
+    \}\
+\
+    .bar-chart \{\
+      display: flex;\
+      justify-content: space-between;\
+      align-items: flex-end;\
+      height: 160px;\
+      padding-top: 20px;\
+    \}\
+\
+    .bar-group \{\
+      display: flex;\
+      flex-direction: column;\
+      align-items: center;\
+      gap: 8px;\
+      position: relative;\
+      flex: 1;\
+    \}\
+\
+    .bars \{\
+      display: flex;\
+      align-items: flex-end;\
+      gap: 3px;\
+      height: 120px;\
+    \}\
+\
+    .bar \{\
+      width: 8px;\
+      border-radius: 4px;\
+    \}\
+\
+    .bar-work \{ background-color: var(--work-blue); \}\
+    .bar-rest \{ background-color: var(--rest-green); \}\
+\
+    .day-label \{\
+      font-size: 12px;\
+      color: var(--text-muted);\
+    \}\
+\
+    .today-highlight \{\
+      position: absolute;\
+      bottom: -6px;\
+      width: 100%;\
+      height: 140px;\
+      background-color: #e6fffa;\
+      border-radius: 16px;\
+      z-index: -1;\
+    \}\
+\
+    .day-label.active \{\
+      color: #047857;\
+      font-weight: 800;\
+    \}\
+  </style>\
+</head>\
+<body>\
+\
+  <div class="app-container">\
+    \
+    <div class="content-area">\
+\
+      <div id="todoTab" class="tab-content active">\
+        <h1 class="todo-header">Trevan, wassup?</h1>\
+        <div id="taskList" class="task-list"></div>\
+        <button class="add-btn" onclick="addNewTask()">+ Add Task</button>\
+      </div>\
+\
+      <div id="restTab" class="tab-content">\
+        <h1 class="todo-header">Rest Time</h1>\
+        <div class="rest-grid">\
+          \
+          <div class="rest-card card-yellow">\
+            <div class="rest-card-top">\
+              <div class="rest-icon-bg">\uc0\u55357 \u56570 </div>\
+              <span class="badge">30 mins</span>\
+            </div>\
+            <div class="rest-info">\
+              <h3>TV</h3>\
+              <p>Unwind with favorite videos</p>\
+              <button class="rest-start-btn" onclick="addRestTime(30)">\uc0\u9654  Start 30m</button>\
+            </div>\
+          </div>\
+\
+          <div class="rest-card card-mint">\
+            <div class="rest-card-top">\
+              <div class="rest-icon-bg">\uc0\u55358 \u56792 </div>\
+              <span class="badge">30 mins</span>\
+            </div>\
+            <div class="rest-info">\
+              <h3>Chill</h3>\
+              <p>Breathe, tea, mindfulness</p>\
+              <button class="rest-start-btn" onclick="addRestTime(30)">\uc0\u9654  Start 30m</button>\
+            </div>\
+          </div>\
+\
+          <div class="rest-card card-cyan">\
+            <div class="rest-card-top">\
+              <div class="rest-icon-bg">\uc0\u55357 \u56492 </div>\
+              <span class="badge">30 mins</span>\
+            </div>\
+            <div class="rest-info">\
+              <h3>Chat</h3>\
+              <p>Catch up with friends</p>\
+              <button class="rest-start-btn" onclick="addRestTime(30)">\uc0\u9654  Start 30m</button>\
+            </div>\
+          </div>\
+\
+          <div class="rest-card card-lime">\
+            <div class="rest-card-top">\
+              <div class="rest-icon-bg">\uc0\u55356 \u57225 </div>\
+              <span class="badge">30 mins</span>\
+            </div>\
+            <div class="rest-info">\
+              <h3>Other fun stuff</h3>\
+              <p>Light games or a brisk walk</p>\
+              <button class="rest-start-btn" onclick="addRestTime(30)">\uc0\u9654  Start 30m</button>\
+            </div>\
+          </div>\
+\
+        </div>\
+      </div>\
+\
+      <div id="trendTab" class="tab-content">\
+        \
+        <div class="trend-section-title">\
+          <h2>Today's Balance</h2>\
+          <span class="status-badge">Optimal</span>\
+        </div>\
+\
+        <div class="metrics-row">\
+          <div class="metric-item">\
+            <span class="metric-label"><span class="dot dot-work"></span> Work Time</span>\
+            <span class="metric-value" id="totalWorkDisplay">48m</span>\
+          </div>\
+          <div class="metric-item">\
+            <span class="metric-label"><span class="dot dot-rest"></span> Rest Time</span>\
+            <span class="metric-value" id="totalRestDisplay">30m</span>\
+          </div>\
+        </div>\
+\
+        <div class="progress-bar-container">\
+          <div class="progress-work" id="workProgressBar"></div>\
+          <div class="progress-rest" id="restProgressBar"></div>\
+        </div>\
+\
+        <div class="percent-row">\
+          <span id="workPercentLabel">61% Work</span>\
+          <span id="restPercentLabel">38% Rest</span>\
+        </div>\
+\
+        <div class="chart-header">\
+          <h2>Weekly Activity</h2>\
+          <div class="legend">\
+            <span><span class="dot dot-work"></span> Work</span>\
+            <span><span class="dot dot-rest"></span> Rest</span>\
+          </div>\
+        </div>\
+\
+        <div class="bar-chart">\
+          <div class="bar-group">\
+            <div class="bars">\
+              <div class="bar bar-work" style="height: 40px;"></div>\
+              <div class="bar bar-rest" style="height: 30px;"></div>\
+            </div>\
+            <span class="day-label">Sat</span>\
+          </div>\
+\
+          <div class="bar-group">\
+            <div class="bars">\
+              <div class="bar bar-work" style="height: 85px;"></div>\
+              <div class="bar bar-rest" style="height: 35px;"></div>\
+            </div>\
+            <span class="day-label">Sun</span>\
+          </div>\
+\
+          <div class="bar-group">\
+            <div class="bars">\
+              <div class="bar bar-work" style="height: 60px;"></div>\
+              <div class="bar bar-rest" style="height: 30px;"></div>\
+            </div>\
+            <span class="day-label">Mon</span>\
+          </div>\
+\
+          <div class="bar-group">\
+            <div class="bars">\
+              <div class="bar bar-work" style="height: 95px;"></div>\
+              <div class="bar bar-rest" style="height: 40px;"></div>\
+            </div>\
+            <span class="day-label">Tue</span>\
+          </div>\
+\
+          <div class="bar-group">\
+            <div class="bars">\
+              <div class="bar bar-work" style="height: 75px;"></div>\
+              <div class="bar bar-rest" style="height: 30px;"></div>\
+            </div>\
+            <span class="day-label">Wed</span>\
+          </div>\
+\
+          <div class="bar-group">\
+            <div class="bars">\
+              <div class="bar bar-work" style="height: 50px;"></div>\
+              <div class="bar bar-rest" style="height: 25px;"></div>\
+            </div>\
+            <span class="day-label">Thu</span>\
+          </div>\
+\
+          <div class="bar-group">\
+            <div class="today-highlight"></div>\
+            <div class="bars">\
+              <div class="bar bar-work" id="todayWorkBar" style="height: 30px;"></div>\
+              <div class="bar bar-rest" id="todayRestBar" style="height: 20px;"></div>\
+            </div>\
+            <span class="day-label active">Today</span>\
+          </div>\
+        </div>\
+\
+      </div>\
+\
+    </div>\
+\
+    <nav class="nav-bar">\
+      <button class="nav-btn active" onclick="switchTab('todoTab', this)">\
+        <span>\uc0\u9745 </span> Todo\
+      </button>\
+      <button class="nav-btn" onclick="switchTab('restTab', this)">\
+        <span>\uc0\u9749 </span> Rest\
+      </button>\
+      <button class="nav-btn" onclick="switchTab('trendTab', this)">\
+        <span>\uc0\u55357 \u56522 </span> Trend\
+      </button>\
+    </nav>\
+\
+  </div>\
+\
+  <script>\
+    // State management\
+    let tasks = [\
+      \{ id: 1, title: 'Updating Header Text', time: 545, completed: true, running: false \},\
+      \{ id: 2, title: 'Routine Review Update', time: 545, completed: false, running: false \},\
+      \{ id: 3, title: 'Working on HTML', time: 545, completed: false, running: false \},\
+      \{ id: 4, title: 'Working on Email Designs', time: 545, completed: false, running: false \}\
+    ];\
+\
+    let restMinutes = 30;\
+    let interval = null;\
+\
+    // Tab Navigation Switcher\
+    function switchTab(tabId, btnElement) \{\
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));\
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));\
+      \
+      document.getElementById(tabId).classList.add('active');\
+      btnElement.classList.add('active');\
+\
+      if (tabId === 'trendTab') \{\
+        updateTrendMetrics();\
+      \}\
+    \}\
+\
+    // Format Seconds to HH:MM:SS\
+    function formatTime(seconds) \{\
+      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');\
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');\
+      const s = String(seconds % 60).padStart(2, '0');\
+      return `$\{h\}:$\{m\}:$\{s\}`;\
+    \}\
+\
+    // Render Tasks inside Todo Tab\
+    function renderTasks() \{\
+      const listContainer = document.getElementById('taskList');\
+      listContainer.innerHTML = '';\
+\
+      tasks.forEach((task) => \{\
+        const card = document.createElement('div');\
+        card.className = `task-card $\{task.completed ? 'completed' : ''\}`;\
+        \
+        card.innerHTML = `\
+          <div class="left-group">\
+            <span class="drag-handle">=</span\
+            <div class="checkbox $\{task.completed ? 'checked' : ''\}" onclick="toggleTask($\{task.id\})">\
+              $\{task.completed ? '\uc0\u10003 ' : ''\}\
+            </div>\
+            <input class="task-title" value="$\{task.title\}" onchange="updateTitle($\{task.id\}, this.value)">\
+          </div>\
+          <div class="right-group">\
+            <button class="timer-btn $\{task.running ? 'running' : ''\}" onclick="toggleTimer($\{task.id\})">\
+              <span>$\{task.running ? '\uc0\u10074 \u10074 ' : '\u9654 '\}</span>\
+              <span>$\{formatTime(task.time)\}</span>\
+            </button>\
+            <button class="delete-btn" onclick="deleteTask($\{task.id\})">\uc0\u55357 \u56785 </button>\
+          </div>\
+        `;\
+        listContainer.appendChild(card);\
+      \});\
+    \}\
+\
+    function toggleTask(id) \{\
+      tasks = tasks.map(t => t.id === id ? \{ ...t, completed: !t.completed \} : t);\
+      renderTasks();\
+    \}\
+\
+    function updateTitle(id, newTitle) \{\
+      tasks = tasks.map(t => t.id === id ? \{ ...t, title: newTitle \} : t);\
+    \}\
+\
+    function toggleTimer(id) \{\
+      tasks = tasks.map(t => \{\
+        if (t.id === id) \{\
+          return \{ ...t, running: !t.running \};\
+        \}\
+        return \{ ...t, running: false \};\
+      \});\
+\
+      const anyRunning = tasks.some(t => t.running);\
+      if (anyRunning && !interval) \{\
+        interval = setInterval(() => \{\
+          tasks = tasks.map(t => t.running ? \{ ...t, time: t.time + 1 \} : t);\
+          renderTasks();\
+        \}, 1000);\
+      \} else if (!anyRunning) \{\
+        clearInterval(interval);\
+        interval = null;\
+      \}\
+      renderTasks();\
+    \}\
+\
+    function addNewTask() \{\
+      tasks.push(\{ id: Date.now(), title: 'New Task', time: 0, completed: false, running: false \});\
+      renderTasks();\
+    \}\
+\
+    function deleteTask(id) \{\
+      tasks = tasks.filter(t => t.id !== id);\
+      renderTasks();\
+    \}\
+\
+    // Rest activity time tracking\
+    function addRestTime(minutes) \{\
+      restMinutes += minutes;\
+      alert(`Added $\{minutes\} minutes of rest!`);\
+    \}\
+\
+    // Update Metrics in Trend Tab dynamically\
+    function updateTrendMetrics() \{\
+      const totalWorkSeconds = tasks.reduce((acc, curr) => acc + curr.time, 0);\
+      const totalWorkMinutes = Math.max(1, Math.round(totalWorkSeconds / 60));\
+      \
+      document.getElementById('totalWorkDisplay').innerText = `$\{totalWorkMinutes\}m`;\
+      document.getElementById('totalRestDisplay').innerText = `$\{restMinutes\}m`;\
+\
+      const total = totalWorkMinutes + restMinutes;\
+      const workPct = Math.round((totalWorkMinutes / total) * 100);\
+      const restPct = 100 - workPct;\
+\
+      document.getElementById('workProgressBar').style.width = `$\{workPct\}%`;\
+      document.getElementById('restProgressBar').style.width = `$\{restPct\}%`;\
+\
+      document.getElementById('workPercentLabel').innerText = `$\{workPct\}% Work`;\
+      document.getElementById('restPercentLabel').innerText = `$\{restPct\}% Rest`;\
+\
+      // Scale today's chart bars relative to current values\
+      document.getElementById('todayWorkBar').style.height = `$\{Math.min(100, totalWorkMinutes * 0.8)\}px`;\
+      document.getElementById('todayRestBar').style.height = `$\{Math.min(100, restMinutes * 0.8)\}px`;\
+    \}\
+\
+    // Initial Execution\
+    renderTasks();\
+  </script>\
+</body>\
+</html>}
