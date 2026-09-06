@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Time & Balance Tracker</title>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -25,11 +28,87 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%);
       color: var(--text-main);
       display: flex;
       justify-content: center;
       min-height: 100vh;
+    }
+
+    .cover-screen {
+      width: 100%;
+      max-width: 440px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 40%), linear-gradient(180deg, #f8fafc 0%, #ecfdf5 100%);
+    }
+
+    .cover-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .cover-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #047857;
+      background: #d1fae5;
+      padding: 8px 12px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+
+    .cover-title {
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.1;
+      margin-bottom: 12px;
+      color: #0f172a;
+    }
+
+    .cover-subtitle {
+      margin: 0 auto 24px;
+      max-width: 280px;
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .cover-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .signin-shell {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .demo-btn {
+      width: 100%;
+      border: 1px solid #d1fae5;
+      background: #ecfdf5;
+      color: #065f46;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     .app-container {
@@ -42,9 +121,63 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
+    .hidden {
+      display: none !important;
+    }
+
+    /* Auth Bar Styles */
+    .auth-bar {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .user-email {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .signout-btn {
+      background: none;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
     .content-area {
       flex: 1;
-      padding: 24px 20px 80px 20px;
+      padding: 20px 20px 80px 20px;
       overflow-y: auto;
     }
 
@@ -525,12 +658,47 @@
   </style>
 </head>
 <body>
+  <div id="signInCover" class="cover-screen">
+    <div class="cover-card">
+      <div class="cover-brand">Time &amp; Balance</div>
+      <h1 class="cover-title">Stay focused.</h1>
+      <p class="cover-subtitle">Sign in to track your work, rest, and daily balance.</p>
 
-  <div class="app-container">
+      <div class="cover-actions">
+        <div id="googleSignInCover" class="signin-shell">
+          <div id="g_id_onload"
+            data-client_id="858943936110-shufieh5t5vck57us06jbnac830502e5.apps.googleusercontent.com"
+            data-callback="handleCredentialResponse"
+            data-auto_prompt="false">
+          </div>
+          <div class="g_id_signin" data-type="standard" data-size="medium" data-theme="outline"></div>
+        </div>
+
+        <button class="demo-btn" onclick="demoSignIn()">Continue as Guest</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appContainer" class="app-container hidden">
+    <div class="auth-bar">
+      <div id="googleSignInContainer" style="display: none;">
+        <div class="g_id_signin" data-type="standard" data-size="medium" data-theme="outline"></div>
+      </div>
+
+      <div id="userProfile" class="user-profile" style="display: none;">
+        <img id="userAvatar" class="user-avatar" src="" alt="Profile">
+        <div class="user-info">
+          <span id="userName" class="user-name">User</span>
+          <span id="userEmail" class="user-email">email@example.com</span>
+        </div>
+        <button class="signout-btn" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+
     <div class="content-area">
 
       <div id="todoTab" class="tab-content active">
-        <h1 class="todo-header">Trevan, wassup?</h1>
+        <h1 class="todo-header" id="todoHeader">Trevan, wassup?</h1>
         <div id="taskList" class="task-list"></div>
         <button class="add-btn" onclick="addNewTask()">+ Add Task</button>
       </div>
@@ -543,7 +711,6 @@
       <div id="trendTab" class="tab-content">
         <div class="trend-section-title">
           <h2>Today's Balance</h2>
-          <span class="status-badge">Optimal</span>
         </div>
 
         <div class="metrics-row">
@@ -668,7 +835,104 @@
   </div>
 
   <script>
-    // State Management (Data initialized empty)
+    // GOOGLE AUTHENTICATION LOGIC
+    const googleClientId = document.getElementById('g_id_onload').dataset.client_id;
+    let googleAccessToken = null;
+    let driveDataFileId = null;
+    let driveTokenClient = null;
+    let saveTimer = null;
+    let activeUser = null;
+
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    function handleCredentialResponse(response) {
+      const payload = parseJwt(response.credential);
+
+      // Save session
+      localStorage.setItem('google_user', JSON.stringify(payload));
+      activeUser = payload;
+      loadLocalState(payload);
+
+      updateAuthUI(payload);
+      renderTasks();
+      renderRestCards();
+      startDriveSync();
+    }
+
+    function demoSignIn() {
+      const demoUser = {
+        given_name: 'Trevan',
+        name: 'Trevan',
+        email: 'trevan@example.com',
+        picture: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+        isDemo: true
+      };
+
+      localStorage.setItem('google_user', JSON.stringify(demoUser));
+      activeUser = demoUser;
+      loadLocalState(demoUser);
+      updateAuthUI(demoUser);
+      renderTasks();
+      renderRestCards();
+    }
+
+    function updateAuthUI(user) {
+      const appContainer = document.getElementById('appContainer');
+      const coverScreen = document.getElementById('signInCover');
+      const googleSignInContainer = document.getElementById('googleSignInContainer');
+      const userProfile = document.getElementById('userProfile');
+
+      if (user) {
+        appContainer.classList.remove('hidden');
+        coverScreen.classList.add('hidden');
+
+        if (googleSignInContainer) googleSignInContainer.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'flex';
+
+        document.getElementById('userName').innerText = user.given_name || user.name;
+        document.getElementById('userEmail').innerText = user.email;
+        document.getElementById('userAvatar').src = user.picture;
+
+        const header = document.getElementById('todoHeader');
+        if (header) {
+          header.innerText = `${user.given_name || user.name}, wassup?`;
+        }
+      } else {
+        appContainer.classList.add('hidden');
+        coverScreen.classList.remove('hidden');
+
+        if (googleSignInContainer) googleSignInContainer.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'none';
+
+        const header = document.getElementById('todoHeader');
+        if (header) {
+          header.innerText = 'Trevan, wassup?';
+        }
+      }
+    }
+
+    function signOut() {
+      if (googleAccessToken && window.google) {
+        google.accounts.oauth2.revoke(googleAccessToken);
+      }
+      googleAccessToken = null;
+      driveDataFileId = null;
+      activeUser = null;
+      localStorage.removeItem('google_user');
+      if (window.google) {
+        google.accounts.id.disableAutoSelect();
+      }
+      updateAuthUI(null);
+    }
+
+    // STATE MANAGEMENT
     let tasks = [];
 
     let restCards = [
@@ -681,6 +945,145 @@
     let workInterval = null;
     let restInterval = null;
     let draggedIndex = null;
+
+    function getStateStorageKey(user) {
+      return `timely_state_${encodeURIComponent(user.email || 'guest')}`;
+    }
+
+    function getAppState() {
+      return {
+        tasks: tasks.map(task => ({ ...task, running: false })),
+        restCards: restCards.map(card => ({ ...card, running: false })),
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function applyAppState(state) {
+      if (Array.isArray(state?.tasks)) {
+        tasks = state.tasks.map(task => ({ ...task, running: false }));
+      }
+      if (Array.isArray(state?.restCards)) {
+        restCards = state.restCards.map(card => ({ ...card, running: false }));
+      }
+    }
+
+    function loadLocalState(user) {
+      const savedState = localStorage.getItem(getStateStorageKey(user));
+      if (!savedState) return;
+
+      try {
+        applyAppState(JSON.parse(savedState));
+      } catch (error) {
+        console.warn('Unable to load local app data.', error);
+      }
+    }
+
+    function persistLocalState() {
+      if (!activeUser) return;
+      localStorage.setItem(getStateStorageKey(activeUser), JSON.stringify(getAppState()));
+    }
+
+    function scheduleDataSave() {
+      persistLocalState();
+      if (!googleAccessToken || saveTimer) return;
+
+      saveTimer = setTimeout(async () => {
+        saveTimer = null;
+        try {
+          await saveDataToDrive();
+        } catch (error) {
+          console.warn('Google Drive save failed.', error);
+        }
+      }, 5000);
+    }
+
+    async function loadDataFromDrive() {
+      const query = encodeURIComponent("name = 'timely-data.json' and 'appDataFolder' in parents and trashed = false");
+      const listResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&spaces=appDataFolder&fields=files(id)`, {
+        headers: { Authorization: `Bearer ${googleAccessToken}` }
+      });
+      if (!listResponse.ok) throw new Error('Unable to find Timely data in Google Drive.');
+
+      const files = (await listResponse.json()).files || [];
+      if (!files.length) {
+        await saveDataToDrive();
+        return;
+      }
+
+      driveDataFileId = files[0].id;
+      const dataResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${driveDataFileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${googleAccessToken}` }
+      });
+      if (!dataResponse.ok) throw new Error('Unable to load Timely data from Google Drive.');
+
+      applyAppState(await dataResponse.json());
+      renderTasks();
+      renderRestCards();
+    }
+
+    async function saveDataToDrive() {
+      if (!googleAccessToken) return;
+
+      const state = JSON.stringify(getAppState());
+      const headers = {
+        Authorization: `Bearer ${googleAccessToken}`,
+        'Content-Type': 'application/json'
+      };
+
+      if (driveDataFileId) {
+        const response = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveDataFileId}?uploadType=media`, {
+          method: 'PATCH',
+          headers,
+          body: state
+        });
+        if (!response.ok) throw new Error('Unable to save Timely data to Google Drive.');
+        return;
+      }
+
+      const boundary = 'timely_data_boundary';
+      const metadata = JSON.stringify({ name: 'timely-data.json', parents: ['appDataFolder'], mimeType: 'application/json' });
+      const body = [
+        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`,
+        `--${boundary}\r\nContent-Type: application/json\r\n\r\n${state}\r\n`,
+        `--${boundary}--`
+      ].join('');
+
+      const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${googleAccessToken}`,
+          'Content-Type': `multipart/related; boundary=${boundary}`
+        },
+        body
+      });
+      if (!response.ok) throw new Error('Unable to create Timely data in Google Drive.');
+      driveDataFileId = (await response.json()).id;
+    }
+
+    function startDriveSync() {
+      if (!window.google?.accounts?.oauth2) {
+        setTimeout(startDriveSync, 500);
+        return;
+      }
+
+      driveTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: googleClientId,
+        scope: 'https://www.googleapis.com/auth/drive.appdata',
+        callback: async (tokenResponse) => {
+          if (tokenResponse.error) {
+            console.warn('Google Drive sync was not authorized.', tokenResponse);
+            return;
+          }
+          googleAccessToken = tokenResponse.access_token;
+          try {
+            await loadDataFromDrive();
+          } catch (error) {
+            console.warn('Google Drive sync failed.', error);
+          }
+        }
+      });
+      driveTokenClient.requestAccessToken({ prompt: '' });
+    }
 
     function switchTab(tabId, btnElement) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -754,6 +1157,7 @@
             const itemToMove = tasks.splice(draggedIndex, 1)[0];
             tasks.splice(index, 0, itemToMove);
             renderTasks();
+            scheduleDataSave();
           }
         });
 
@@ -787,10 +1191,12 @@
     function toggleTask(id) {
       tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
       renderTasks();
+      scheduleDataSave();
     }
 
     function updateTitle(id, newTitle) {
       tasks = tasks.map(t => t.id === id ? { ...t, title: newTitle } : t);
+      scheduleDataSave();
     }
 
     function toggleTimer(id) {
@@ -808,16 +1214,19 @@
         workInterval = null;
       }
       renderTasks();
+      scheduleDataSave();
     }
 
     function addNewTask() {
       tasks.push({ id: Date.now(), title: 'New Task', time: 0, completed: false, running: false });
       renderTasks();
+      scheduleDataSave();
     }
 
     function deleteTask(id) {
       tasks = tasks.filter(t => t.id !== id);
       renderTasks();
+      scheduleDataSave();
     }
 
     /* --- REST TAB LOGIC --- */
@@ -852,6 +1261,7 @@
       clearInterval(workInterval);
       workInterval = null;
       renderTasks();
+      scheduleDataSave();
     }
 
     function stopAllRestTimers() {
@@ -859,6 +1269,7 @@
       clearInterval(restInterval);
       restInterval = null;
       renderRestCards();
+      scheduleDataSave();
     }
 
     function toggleRestTimer(id) {
@@ -883,6 +1294,7 @@
             restInterval = null;
           }
           renderRestCards();
+          scheduleDataSave();
         }, 1000);
       } else if (!anyRunning) {
         clearInterval(restInterval);
@@ -890,6 +1302,7 @@
       }
 
       renderRestCards();
+      scheduleDataSave();
     }
 
     /* --- TREND TAB LOGIC --- */
@@ -926,8 +1339,20 @@
 
     // Initialize App
     window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('google_user');
+      const user = savedUser ? JSON.parse(savedUser) : null;
+      if (user) {
+        activeUser = user;
+        loadLocalState(user);
+      }
+      updateAuthUI(user);
+
       renderTasks();
       renderRestCards();
+
+      if (user && !user.isDemo) {
+        startDriveSync();
+      }
     });
   </script>
 </body>
