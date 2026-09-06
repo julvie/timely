@@ -366,24 +366,23 @@
 
     /* --- TAB 2: REST --- */
     .rest-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 18px;
     }
 
     .rest-card {
-      border-radius: 24px;
-      padding: 18px;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 0;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 190px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      align-items: center;
+      gap: 16px;
     }
 
     .rest-card-top {
       position: relative;
+      flex-shrink: 0;
     }
 
     .rest-edit-btn {
@@ -425,7 +424,7 @@
     }
 
     .rest-info h3 {
-      font-size: 20px;
+      font-size: 17px;
       font-weight: 800;
       margin-bottom: 4px;
       color: #0f172a;
@@ -435,12 +434,12 @@
       font-size: 12px;
       color: #334155;
       line-height: 1.3;
-      margin-bottom: 16px;
+      margin-bottom: 0;
     }
 
     .rest-start-btn {
-      background: rgba(255, 255, 255, 0.5);
-      border: none;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
       border-radius: 16px;
       padding: 10px 14px;
       font-weight: 800;
@@ -451,11 +450,111 @@
       align-items: center;
       gap: 6px;
       width: fit-content;
+      margin-left: auto;
+      flex-shrink: 0;
     }
 
     .rest-start-btn.running {
       background: #0f172a;
       color: #ffffff;
+    }
+
+    .rest-ticket-summary {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border: 1px solid #d1fae5;
+      border-radius: 16px;
+      background: #f0fdf4;
+    }
+
+    .rest-ticket-count {
+      color: #047857;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .rest-ticket-label {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .rest-ticket-note {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .rest-tickets {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .rest-ticket {
+      min-height: 88px;
+      border: 1px solid #a7f3d0;
+      border-radius: 14px;
+      background: #ffffff;
+      color: #047857;
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .rest-ticket:hover {
+      background: #ecfdf5;
+    }
+
+    .rest-ticket.used,
+    .rest-ticket.active {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+      color: var(--text-muted);
+      cursor: default;
+    }
+
+    .rest-ticket-status {
+      display: block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .rest-ticket .rest-start-btn {
+      display: inline-flex;
+      margin: 8px 0 0;
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    .rest-activity-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .rest-activity-option {
+      border: 1px solid #d1fae5;
+      background: #f0fdf4;
+      color: #065f46;
+      padding: 12px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      border-radius: 16px;
+    }
+
+    .rest-empty-state {
+      padding: 28px 0 8px;
+      color: var(--text-muted);
+      font-size: 14px;
     }
 
     .rest-edit-dialog {
@@ -516,6 +615,20 @@
       justify-content: flex-end;
       gap: 8px;
       margin-top: 4px;
+    }
+
+    .task-time-dialog {
+      width: min(360px, calc(100% - 32px));
+    }
+
+    .task-time-fields {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .task-time-fields label {
+      min-width: 0;
     }
 
     .rest-edit-actions button {
@@ -839,13 +952,11 @@
       }
 
       .rest-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 20px;
+        gap: 0;
       }
 
       .rest-card {
-        min-height: 220px;
-        padding: 22px;
+        padding: 18px 8px;
       }
 
       .trend-section-title h2 {
@@ -928,7 +1039,14 @@
 
       <div id="restTab" class="tab-content">
         <h1 class="todo-header">Rest Time</h1>
-        <div class="rest-grid" id="restGrid"></div>
+        <div class="rest-ticket-summary">
+          <div>
+            <div class="rest-ticket-count" id="restTicketCount">0</div>
+            <div class="rest-ticket-label">30-minute rest tickets available</div>
+          </div>
+          <div class="rest-ticket-note" id="restTicketNote">Earn 1 ticket for every 60 minutes of work.</div>
+        </div>
+        <div id="restTickets" class="rest-tickets"></div>
       </div>
 
       <div id="trendTab" class="tab-content">
@@ -975,8 +1093,8 @@
 
           <div class="chart-container">
             <div class="y-axis">
-              <span>4h</span>
-              <span>2h</span>
+              <span id="chartMaxLabel">4h</span>
+              <span id="chartMidLabel">2h</span>
               <span>0h</span>
             </div>
 
@@ -1024,12 +1142,38 @@
         <textarea id="editRestDesc" maxlength="120" required></textarea>
       </label>
       <label>
-        Time (minutes)
-        <input id="editRestMinutes" type="number" min="1" max="1440" step="1" required>
+        Ticket duration
+        <input id="editRestMinutes" type="number" value="30" readonly>
       </label>
       <div class="rest-edit-actions">
         <button type="button" class="rest-edit-cancel" onclick="closeRestEditor()">Cancel</button>
         <button type="submit" class="rest-edit-save">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="taskTimeDialog" class="rest-edit-dialog task-time-dialog">
+    <h2>Time spent</h2>
+    <form id="taskTimeForm" class="rest-edit-form">
+      <p id="taskTimePrompt">How much time did you spend on this task?</p>
+      <input type="hidden" id="taskTimeId">
+      <div class="task-time-fields">
+        <label>
+          Hours
+          <input id="taskTimeHours" type="number" min="0" max="999" step="1" required>
+        </label>
+        <label>
+          Minutes
+          <input id="taskTimeMinutes" type="number" min="0" max="59" step="1" required>
+        </label>
+        <label>
+          Seconds
+          <input id="taskTimeSeconds" type="number" min="0" max="59" step="1" required>
+        </label>
+      </div>
+      <div class="rest-edit-actions">
+        <button type="button" class="rest-edit-cancel" onclick="closeTaskTimeDialog()">Cancel</button>
+        <button type="submit" class="rest-edit-save">Save time</button>
       </div>
     </form>
   </dialog>
@@ -1138,7 +1282,7 @@
     let restCards = [
       { id: 1, title: 'TV', desc: 'Unwind with favorite videos', icon: '📺', colorClass: 'card-yellow', remaining: 1800, usedSeconds: 0, running: false },
       { id: 2, title: 'Chill', desc: 'Breathe, tea, mindfulness', icon: '🧘', colorClass: 'card-mint', remaining: 1800, usedSeconds: 0, running: false },
-      { id: 3, title: 'Chat', desc: 'Catch up with friends', icon: '💬', colorClass: 'card-cyan', remaining: 1800, usedSeconds: 0, running: false },
+      { id: 3, title: 'Phone', desc: 'Catch up with friends', icon: '📱', colorClass: 'card-cyan', remaining: 1800, usedSeconds: 0, running: false },
       { id: 4, title: 'Other fun stuff', desc: 'Light games or a brisk walk', icon: '🎉', colorClass: 'card-lime', remaining: 1800, usedSeconds: 0, running: false }
     ];
 
@@ -1167,7 +1311,12 @@
         tasks = state.tasks.map(task => ({ ...task, running: false }));
       }
       if (Array.isArray(state?.restCards)) {
-        restCards = state.restCards.map(card => ({ ...card, running: false }));
+        restCards = state.restCards.map(card => ({
+          ...card,
+          title: card.title === 'Chat' ? 'Phone' : card.title,
+          icon: card.title === 'Chat' ? '📱' : card.icon,
+          running: false
+        }));
       }
       assignRestColors();
       if (state?.activityByDate && typeof state.activityByDate === 'object') {
@@ -1251,6 +1400,35 @@
         activityByDate[dateKey] = { work: 0, rest: 0 };
       }
       activityByDate[dateKey][type] += seconds;
+    }
+
+    function adjustActivity(type, seconds) {
+      if (!seconds) return;
+      const dateKey = getDateKey(new Date());
+      if (!activityByDate[dateKey]) {
+        activityByDate[dateKey] = { work: 0, rest: 0 };
+      }
+      activityByDate[dateKey][type] = Math.max(0, activityByDate[dateKey][type] + seconds);
+    }
+
+    function getActivityForDate(dateKey) {
+      const activity = activityByDate[dateKey] || { work: 0, rest: 0 };
+      const todayKey = getDateKey(new Date());
+      if (dateKey !== todayKey) return activity;
+
+      const historicalWork = Object.entries(activityByDate)
+        .filter(([key]) => key !== todayKey)
+        .reduce((total, [, value]) => total + (value.work || 0), 0);
+      const historicalRest = Object.entries(activityByDate)
+        .filter(([key]) => key !== todayKey)
+        .reduce((total, [, value]) => total + (value.rest || 0), 0);
+      const totalWork = tasks.reduce((total, task) => total + task.time, 0);
+      const totalRest = restCards.reduce((total, card) => total + card.usedSeconds, 0);
+
+      return {
+        work: Math.max(activity.work, totalWork - historicalWork),
+        rest: Math.max(activity.rest, totalRest - historicalRest)
+      };
     }
 
     async function loadDataFromDrive() {
@@ -1356,6 +1534,9 @@
     }
 
     function formatTime(seconds) {
+      if (seconds >= 3600) {
+        return formatHoursMinutesSeconds(seconds);
+      }
       const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
       const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
       const s = String(seconds % 60).padStart(2, '0');
@@ -1369,9 +1550,43 @@
     }
 
     function formatMinSec(totalSecs) {
+      if (totalSecs >= 3600) {
+        return formatHoursMinutesSeconds(totalSecs);
+      }
       const mins = Math.floor(totalSecs / 60);
       const secs = totalSecs % 60;
       return `${mins}m ${secs}s`;
+    }
+
+    function formatHoursMinutesSeconds(totalSecs) {
+      const hours = Math.floor(totalSecs / 3600);
+      const minutes = Math.floor((totalSecs % 3600) / 60);
+      const seconds = totalSecs % 60;
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function getRestTicketStats() {
+      const totalWorkSeconds = tasks.reduce((total, task) => total + task.time, 0);
+      const totalRestSeconds = restCards.reduce((total, card) => total + card.usedSeconds, 0);
+      const earnedTickets = Math.floor(totalWorkSeconds / 3600);
+      const availableSeconds = Math.max(0, (earnedTickets * 1800) - totalRestSeconds);
+      return {
+        totalWorkSeconds,
+        totalRestSeconds,
+        earnedTickets,
+        availableTickets: Math.floor(availableSeconds / 1800),
+        availableSeconds
+      };
+    }
+
+    function updateRestTicketSummary() {
+      const summary = getRestTicketStats();
+      const count = document.getElementById('restTicketCount');
+      const note = document.getElementById('restTicketNote');
+      if (!count || !note) return;
+
+      count.innerText = summary.earnedTickets;
+      note.innerText = `${summary.availableTickets} available, ${formatMinSec(summary.totalRestSeconds)} used. Earn 1 ticket for every 60 minutes of work.`;
     }
 
     /* --- TODO TAB LOGIC --- */
@@ -1445,10 +1660,56 @@
     }
 
     function toggleTask(id) {
-      tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+      const task = tasks.find(item => item.id === id);
+      if (!task) return;
+
+      if (task.completed) {
+        tasks = tasks.map(item => item.id === id ? { ...item, completed: false } : item);
+        renderTasks();
+        scheduleDataSave();
+        return;
+      }
+
+      openTaskTimeDialog(task);
+    }
+
+    function openTaskTimeDialog(task) {
+      const dialog = document.getElementById('taskTimeDialog');
+      if (!dialog) return;
+
+      document.getElementById('taskTimeId').value = task.id;
+      document.getElementById('taskTimeHours').value = Math.floor(task.time / 3600);
+      document.getElementById('taskTimeMinutes').value = Math.floor((task.time % 3600) / 60);
+      document.getElementById('taskTimeSeconds').value = task.time % 60;
+      document.getElementById('taskTimePrompt').innerText = `How much time did you spend on "${task.title}"?`;
+      dialog.showModal();
+    }
+
+    function closeTaskTimeDialog() {
+      const dialog = document.getElementById('taskTimeDialog');
+      if (dialog?.open) dialog.close();
+    }
+
+    document.getElementById('taskTimeForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const id = Number(document.getElementById('taskTimeId').value);
+      const hours = Number(document.getElementById('taskTimeHours').value);
+      const minutes = Number(document.getElementById('taskTimeMinutes').value);
+      const seconds = Number(document.getElementById('taskTimeSeconds').value);
+      const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+      const previousTask = tasks.find(task => task.id === id);
+      const timeDelta = totalSeconds - (previousTask?.time || 0);
+
+      tasks = tasks.map(task => task.id === id ? { ...task, time: totalSeconds, completed: true, running: false } : task);
+      adjustActivity('work', timeDelta);
+      if (!tasks.some(task => task.running)) {
+        clearInterval(workInterval);
+        workInterval = null;
+      }
       renderTasks();
       scheduleDataSave();
-    }
+      closeTaskTimeDialog();
+    });
 
     function updateTitle(id, newTitle) {
       tasks = tasks.map(t => t.id === id ? { ...t, title: newTitle } : t);
@@ -1466,6 +1727,9 @@
           recordActivity('work', 1);
           renderTasks();
           renderWeeklyActivity();
+          if (document.getElementById('restTab').classList.contains('active')) {
+            renderRestCards();
+          }
           scheduleDataSave();
         }, 1000);
       } else if (!anyRunning) {
@@ -1490,31 +1754,50 @@
 
     /* --- REST TAB LOGIC --- */
     function renderRestCards() {
-      const restGrid = document.getElementById('restGrid');
-      if (!restGrid) return;
-      restGrid.innerHTML = '';
       assignRestColors();
+      updateRestTicketSummary();
+      renderRestTickets();
+    }
 
-      restCards.forEach((card) => {
-        const el = document.createElement('div');
-        el.className = `rest-card ${card.colorClass}`;
-        const isFinished = card.remaining <= 0;
+    function renderRestTickets() {
+      const ticketsContainer = document.getElementById('restTickets');
+      if (!ticketsContainer) return;
+      const summary = getRestTicketStats();
+      const usedTickets = Math.min(summary.earnedTickets, Math.ceil(summary.totalRestSeconds / 1800));
+      const activeCard = restCards.find(card => card.running) || restCards.find(card => card.usedSeconds > 0 && card.remaining > 0);
 
-        el.innerHTML = `
-          <div class="rest-card-top">
-            <div class="rest-icon-bg">${card.icon}</div>
-            <button class="rest-edit-btn" type="button" aria-label="Edit ${card.title}" onclick="openRestEditor(${card.id})">✎</button>
-          </div>
-          <div class="rest-info">
-            <h3>${card.title}</h3>
-            <p>${card.desc}</p>
-            <button class="rest-start-btn ${card.running ? 'running' : ''}" onclick="toggleRestTimer(${card.id})" ${isFinished ? 'disabled' : ''}>
-              <span>${card.running ? '❚❚ Pause ' + formatCountdown(card.remaining) : (isFinished ? 'Finished' : '▶ Start ' + formatCountdown(card.remaining))}</span>
-            </button>
-          </div>
-        `;
-        restGrid.appendChild(el);
-      });
+      if (summary.earnedTickets === 0) {
+        ticketsContainer.innerHTML = '<div class="rest-empty-state">Work for 60 minutes to earn your first rest ticket.</div>';
+        return;
+      }
+
+      ticketsContainer.innerHTML = Array.from({ length: summary.earnedTickets }, (_, index) => {
+        const isUsed = index < Math.floor(summary.totalRestSeconds / 1800);
+        const isActive = !isUsed && index < usedTickets;
+        const status = isUsed ? 'Used' : (isActive ? 'In progress' : 'Available');
+        const className = isUsed ? 'used' : (isActive ? 'active' : '');
+        const action = isUsed
+          ? ''
+          : (isActive && activeCard
+            ? ` onclick="toggleRestTimer(${activeCard.id})"`
+            : ` onclick="startRestTicket(${index})"`);
+        return `<button class="rest-ticket ${className}" type="button"${action}>
+          🎟 Ticket ${index + 1}
+          <span class="rest-ticket-status">${status}</span>
+          ${!isUsed && !isActive ? '<span class="rest-start-btn">▶ Start</span>' : ''}
+        </button>`;
+      }).join('');
+
+      if (activeCard) {
+        const activeTicket = ticketsContainer.querySelector('.rest-ticket.active');
+        if (activeTicket) activeTicket.innerHTML = `🎟 Ticket ${Math.floor(summary.totalRestSeconds / 1800) + 1}<span class="rest-ticket-status">${activeCard.title}</span><span class="rest-start-btn ${activeCard.running ? 'running' : ''}">${activeCard.running ? '❚❚ Pause' : '▶ Resume'} ${formatCountdown(activeCard.remaining)}</span>`;
+      }
+    }
+
+    function startRestTicket(ticketIndex) {
+      if (!restCards.length) return;
+      const activity = restCards[ticketIndex % restCards.length];
+      toggleRestTimer(activity.id);
     }
 
     function openRestEditor(id) {
@@ -1526,7 +1809,7 @@
       document.getElementById('editRestIcon').value = card.icon;
       document.getElementById('editRestTitle').value = card.title;
       document.getElementById('editRestDesc').value = card.desc;
-      document.getElementById('editRestMinutes').value = Math.max(1, Math.ceil((card.remaining + card.usedSeconds) / 60));
+      document.getElementById('editRestMinutes').value = 30;
       dialog.showModal();
     }
 
@@ -1538,12 +1821,12 @@
     document.getElementById('restEditForm').addEventListener('submit', (event) => {
       event.preventDefault();
       const id = Number(document.getElementById('editRestId').value);
-      const minutes = Number(document.getElementById('editRestMinutes').value);
-      const totalSeconds = minutes * 60;
+      const totalSeconds = 30 * 60;
 
       restCards = restCards.map(card => {
         if (card.id !== id) return card;
         const usedSeconds = Math.min(card.usedSeconds, totalSeconds);
+        adjustActivity('rest', usedSeconds - card.usedSeconds);
         return {
           ...card,
           icon: document.getElementById('editRestIcon').value.trim(),
@@ -1579,6 +1862,16 @@
 
     function toggleRestTimer(id) {
       stopAllWorkTimers();
+
+      const card = restCards.find(item => item.id === id);
+      const ticketStats = getRestTicketStats();
+      if (card && !card.running && (card.remaining <= 0 || ticketStats.availableSeconds <= 0)) {
+        if (ticketStats.availableSeconds <= 0) {
+          renderRestCards();
+          return;
+        }
+        card.remaining = 1800;
+      }
 
       restCards = restCards.map(c => c.id === id ? { ...c, running: !c.running } : { ...c, running: false });
 
@@ -1641,11 +1934,13 @@
         return {
           date,
           dateKey,
-          activity: activityByDate[dateKey] || { work: 0, rest: 0 }
+          activity: getActivityForDate(dateKey)
         };
       });
       const maxSeconds = Math.max(4 * 60 * 60, ...days.map(day => day.activity.work + day.activity.rest));
       const todayKey = getDateKey(new Date());
+      document.getElementById('chartMaxLabel').innerText = formatChartHours(maxSeconds);
+      document.getElementById('chartMidLabel').innerText = formatChartHours(maxSeconds / 2);
 
       barsContainer.innerHTML = days.map(day => {
         const workHeight = Math.round((day.activity.work / maxSeconds) * 116);
@@ -1662,6 +1957,14 @@
           </div>
         `;
       }).join('');
+    }
+
+    function formatChartHours(seconds) {
+      if (seconds >= 3600) {
+        const hours = seconds / 3600;
+        return `${hours.toFixed(hours % 1 === 0 ? 0 : 1)}h`;
+      }
+      return `${Math.max(1, Math.round(seconds / 60))}m`;
     }
 
     function updateTrendMetrics() {
