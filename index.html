@@ -382,26 +382,46 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
 
+    .rest-card-top {
+      position: relative;
+    }
+
+    .rest-edit-btn {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: #334155;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .rest-edit-btn:hover {
+      color: #047857;
+    }
+
     .card-yellow { background-color: #fef08a; }
     .card-mint   { background-color: #86efac; }
     .card-cyan   { background-color: #67e8f9; }
     .card-lime   { background-color: #a3e635; }
-
-    .rest-card-top {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-    }
+    .card-peach  { background-color: #fdba74; }
+    .card-sky    { background-color: #93c5fd; }
+    .card-rose   { background-color: #fda4af; }
+    .card-teal   { background-color: #5eead4; }
 
     .rest-icon-bg {
-      width: 38px;
-      height: 38px;
+      width: 52px;
+      height: 52px;
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 26px;
     }
 
     .rest-info h3 {
@@ -435,6 +455,85 @@
 
     .rest-start-btn.running {
       background: #0f172a;
+      color: #ffffff;
+    }
+
+    .rest-edit-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(420px, calc(100% - 32px));
+      border: none;
+      border-radius: 20px;
+      padding: 24px;
+      color: var(--text-main);
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+    }
+
+    .rest-edit-dialog::backdrop {
+      background: rgba(15, 23, 42, 0.42);
+    }
+
+    .rest-edit-dialog h2 {
+      margin-bottom: 18px;
+      font-size: 20px;
+    }
+
+    .rest-edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .rest-edit-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .rest-edit-form input,
+    .rest-edit-form textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font: inherit;
+      font-size: 14px;
+    }
+
+    .rest-edit-form textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .rest-edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .rest-edit-actions button {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .rest-edit-cancel {
+      background: #ffffff;
+      color: var(--text-muted);
+    }
+
+    .rest-edit-save {
+      border-color: #10b981 !important;
+      background: #10b981;
       color: #ffffff;
     }
 
@@ -689,6 +788,96 @@
       border-radius: 10px;
       z-index: -1;
     }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 24px;
+      }
+
+      .cover-screen {
+        max-width: 560px;
+        min-height: calc(100vh - 48px);
+      }
+
+      .app-container {
+        width: min(1180px, 100%);
+        max-width: none;
+        min-height: calc(100vh - 48px);
+        margin: 0 auto;
+        border-radius: 24px;
+        overflow: hidden;
+      }
+
+      .auth-bar {
+        padding: 16px 32px;
+      }
+
+      .content-area {
+        padding: 32px 40px 104px;
+      }
+
+      .tab-content {
+        width: min(100%, 1080px);
+        margin: 0 auto;
+      }
+
+      .todo-header {
+        font-size: 30px;
+        margin-bottom: 24px;
+      }
+
+      .task-list {
+        gap: 14px;
+      }
+
+      .task-card {
+        padding: 16px 18px;
+      }
+
+      .add-btn {
+        width: min(100%, 900px);
+      }
+
+      .rest-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .rest-card {
+        min-height: 220px;
+        padding: 22px;
+      }
+
+      .trend-section-title h2 {
+        font-size: 24px;
+      }
+
+      .chart-card {
+        padding: 24px 22px 20px;
+      }
+
+      .chart-container,
+      .metrics-row,
+      .progress-bar-container,
+      .percent-row {
+        width: min(100%, 980px);
+      }
+
+      .nav-bar {
+        left: 50%;
+        bottom: 24px;
+        width: min(1180px, calc(100% - 48px));
+        max-width: none;
+        transform: translateX(-50%);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      }
+
+      .nav-btn {
+        padding: 14px 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -818,6 +1007,33 @@
     </nav>
   </div>
 
+  <dialog id="restEditDialog" class="rest-edit-dialog">
+    <h2>Edit Rest Item</h2>
+    <form id="restEditForm" class="rest-edit-form">
+      <input type="hidden" id="editRestId">
+      <label>
+        Icon
+        <input id="editRestIcon" type="text" maxlength="4" required>
+      </label>
+      <label>
+        Title
+        <input id="editRestTitle" type="text" maxlength="40" required>
+      </label>
+      <label>
+        Description
+        <textarea id="editRestDesc" maxlength="120" required></textarea>
+      </label>
+      <label>
+        Time (minutes)
+        <input id="editRestMinutes" type="number" min="1" max="1440" step="1" required>
+      </label>
+      <div class="rest-edit-actions">
+        <button type="button" class="rest-edit-cancel" onclick="closeRestEditor()">Cancel</button>
+        <button type="submit" class="rest-edit-save">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
   <script>
     // GOOGLE AUTHENTICATION LOGIC
     const googleClientId = document.getElementById('g_id_onload').dataset.client_id;
@@ -937,6 +1153,7 @@
     }
 
     function getAppState() {
+      assignRestColors();
       return {
         tasks: tasks.map(task => ({ ...task, running: false })),
         restCards: restCards.map(card => ({ ...card, running: false })),
@@ -952,6 +1169,7 @@
       if (Array.isArray(state?.restCards)) {
         restCards = state.restCards.map(card => ({ ...card, running: false }));
       }
+      assignRestColors();
       if (state?.activityByDate && typeof state.activityByDate === 'object') {
         activityByDate = state.activityByDate;
       } else {
@@ -1000,6 +1218,22 @@
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
+    }
+
+    const restColorClasses = [
+      'card-yellow', 'card-mint', 'card-cyan', 'card-lime',
+      'card-peach', 'card-sky', 'card-rose', 'card-teal'
+    ];
+
+    function assignRestColors() {
+      const usedColors = new Set();
+      restCards.forEach(card => {
+        const hasUniqueColor = restColorClasses.includes(card.colorClass) && !usedColors.has(card.colorClass);
+        if (!hasUniqueColor) {
+          card.colorClass = restColorClasses.find(colorClass => !usedColors.has(colorClass)) || restColorClasses[usedColors.size % restColorClasses.length];
+        }
+        usedColors.add(card.colorClass);
+      });
     }
 
     function getMonday(date) {
@@ -1259,6 +1493,7 @@
       const restGrid = document.getElementById('restGrid');
       if (!restGrid) return;
       restGrid.innerHTML = '';
+      assignRestColors();
 
       restCards.forEach((card) => {
         const el = document.createElement('div');
@@ -1268,6 +1503,7 @@
         el.innerHTML = `
           <div class="rest-card-top">
             <div class="rest-icon-bg">${card.icon}</div>
+            <button class="rest-edit-btn" type="button" aria-label="Edit ${card.title}" onclick="openRestEditor(${card.id})">✎</button>
           </div>
           <div class="rest-info">
             <h3>${card.title}</h3>
@@ -1280,6 +1516,50 @@
         restGrid.appendChild(el);
       });
     }
+
+    function openRestEditor(id) {
+      const card = restCards.find(item => item.id === id);
+      const dialog = document.getElementById('restEditDialog');
+      if (!card || !dialog) return;
+
+      document.getElementById('editRestId').value = card.id;
+      document.getElementById('editRestIcon').value = card.icon;
+      document.getElementById('editRestTitle').value = card.title;
+      document.getElementById('editRestDesc').value = card.desc;
+      document.getElementById('editRestMinutes').value = Math.max(1, Math.ceil((card.remaining + card.usedSeconds) / 60));
+      dialog.showModal();
+    }
+
+    function closeRestEditor() {
+      const dialog = document.getElementById('restEditDialog');
+      if (dialog?.open) dialog.close();
+    }
+
+    document.getElementById('restEditForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const id = Number(document.getElementById('editRestId').value);
+      const minutes = Number(document.getElementById('editRestMinutes').value);
+      const totalSeconds = minutes * 60;
+
+      restCards = restCards.map(card => {
+        if (card.id !== id) return card;
+        const usedSeconds = Math.min(card.usedSeconds, totalSeconds);
+        return {
+          ...card,
+          icon: document.getElementById('editRestIcon').value.trim(),
+          title: document.getElementById('editRestTitle').value.trim(),
+          desc: document.getElementById('editRestDesc').value.trim(),
+          remaining: totalSeconds - usedSeconds,
+          usedSeconds,
+          running: false
+        };
+      });
+
+      stopAllRestTimers();
+      renderRestCards();
+      scheduleDataSave();
+      closeRestEditor();
+    });
 
     function stopAllWorkTimers() {
       tasks = tasks.map(t => ({ ...t, running: false }));
